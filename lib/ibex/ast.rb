@@ -52,4 +52,65 @@ module Ibex
         end
         Ibex.const_set name.to_s, clazz
     end
+
+    # AST Node for a module def.
+    # Grammar:
+    # module CONSTANT
+    # <newline><indent> CONTENT
+    # <newline?><outdent>
+    create_node :ModuleDef, :name, :body
+
+    # AST Node for a Use
+    # Grammar:
+    # use (CONSTANT::)* | ({CONSTANT,*}::)*
+    create_node :Use, :path
+
+    # AST Node for accessing of a module function without args.
+    # Grammar:
+    # (CONSTANT::)* :: IDENTIFIER
+    create_node :ModuleFunctionRef, :constant, :name
+
+    # Several AST Nodes for literals that should speak for themselves.
+    create_node :IntLiteral, :value
+    create_node :FloatLiteral, :value
+    create_node :StringLiteral, :value
+    create_node :BoolLiteral, :value
+
+    # AST Node for any identifier. At the typing phase, it
+    # will be decided if this is a call or a var reference.
+    # Grammar:
+    # IDENTIFIER
+    create_node :Identifier, :value
+
+    # AST Node for a binary operation.
+    # Grammar:
+    # EXPRESSION OP EXPRESSION
+    create_node :Binary, :left, :op, :right
+
+    # AST Node for assignment
+    # Grammar
+    # TARGET_EXPRESSION OP VALUE_EXPRESSION
+    create_node :Assign, :target, :value
+
+    # AST Node for calls with arguments.
+    # Grammar:
+    # EXPRESSION -> IDENTIFIER | (EXPRESSION, EXPRESSION, ...) -> IDENTIFIER
+    create_node :Call, :target, :args
+
+    # AST Node for a function definition.
+    # Grammar:
+    # fn IDENTIFIER
+    # fn IDENTIFIER IDENTIFIER: TYPE
+    # fn IDENTIFIER IDENTIFIER: TYPE, IDENTIFIER: TYPE, ...
+    # fn IDENTIFIER IDENTIFIER: TYPE, IDENTIFIER: TYPE, ... -> TYPE
+    create_node :FunctionArg, :name, :given_type
+    create_node :FunctionDef, :name, :args, :return_type, :body
+
+    # AST Node for an if statement.
+    # Grammar:
+    # if EXPRESSION
+    # <newline><indent>TRUE_BODY
+    # (<newline><outdent>else
+    #  <newline><indent>FALSE_BODY)
+    create_node :If, :condition, :true_body, :false_body
 end
