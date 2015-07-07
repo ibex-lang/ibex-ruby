@@ -20,37 +20,59 @@ module Ibex
             attr_accessor *fields
 
             class_eval %Q(
-                def initialize(#{fields.map(&:to_s).join ", "})
-                    #{fields.map(&:to_s).map{|x| x.include?("body") ? "@#{x} = Expressions.from #{x}" : "@#{x} = #{x}"}.join("\n")}
-                end
+            def initialize(#{fields.map(&:to_s).join ", "})
+                #{fields.map(&:to_s).map{|x| x.include?("body") ? "@#{x} = Expressions.from #{x}" : "@#{x} = #{x}"}.join("\n")}
+            end
 
-                def clone
-                    self.class.new(#{fields.map(&:to_s).map{|x| "(@#{x}.clone rescue @#{x})"}.join(", ")})
-                end
+            def clone
+                self.class.new(#{fields.map(&:to_s).map{|x| "(@#{x}.clone rescue @#{x})"}.join(", ")})
+            end
 
-                def hash
-                    [#{fields.map(&:to_s).map{|x| "@#{x}"}.join(", ")}].hash
-                end
+            def hash
+                [#{fields.map(&:to_s).map{|x| "@#{x}"}.join(", ")}].hash
+            end
 
-                def ==(other)
-                    return false unless other.class == self.class
-                    eq = true
-                    #{fields.map(&:to_s).map{|x| "eq &&= @#{x} == other.#{x}"}.join(";")}
-                    return eq
-                end
+            def ==(other)
+                return false unless other.class == self.class
+                eq = true
+                #{fields.map(&:to_s).map{|x| "eq &&= @#{x} == other.#{x}"}.join(";")}
+                return eq
+            end
 
-                def accept(visitor)
-                    visitor.visit_any(self) || visitor.visit_#{encoded_name}(self)
-                end
+            def accept(visitor)
+                visitor.visit_any(self) || visitor.visit_#{encoded_name}(self)
+            end
             )
 
             Visitor.class_eval %Q(
-                def visit_#{encoded_name}(node)
-                    nil
-                end
+            def visit_#{encoded_name}(node)
+                nil
+            end
             )
         end
         Ibex.const_set name.to_s, clazz
+    end
+
+    # AST Node for a "Body" that can contain other expressions.
+    # This is often started by an indent and ended by an outdent.
+    create_node :Expressions, :contents
+    class Expressions
+        include Enumerable
+
+        def each(&block)
+            contents.each &block
+        end
+
+        def empty?
+            contents.empty?
+        end
+
+        def self.from(other)
+            return Expressions.new [] if other.nil?
+            return other if other.is_a? Expressions
+            return Expressions.new other if other.is_a? ::Array
+            Expressions.new [other]
+        end
     end
 
     # AST Node for a module def.
