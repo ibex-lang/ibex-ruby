@@ -61,4 +61,47 @@ describe Lexer do
             expect(lex kw).to eq [:keyword, kw]
         end
     end
+
+    it "keeps track of newlines and line numbers" do
+        lexer = Lexer.new "lexer_spec", "1\n2\n3\n\n4"
+
+        expect(lexer.next_token.line_num).to eq 1
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.line_num).to eq 2
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.line_num).to eq 3
+        expect(lexer.next_token.kind).to eq :newline
+        # Note that there is no newline check here. The lexer only emits the newline once.
+        expect(lexer.next_token.line_num).to eq 5
+    end
+
+    it "keeps track of indentation levels" do
+        lexer = Lexer.new "lexer_spec", %Q(
+            A
+              B
+                   C
+              B
+            A
+                    B
+        )
+
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :constant # A
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :constant # B
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :constant # C
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :outdent
+        expect(lexer.next_token.kind).to eq :constant # B
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :outdent
+        expect(lexer.next_token.kind).to eq :constant # A
+        expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :constant # B
+    end
 end
