@@ -12,6 +12,11 @@ module Helpers
         tokens.size == 1 ? tokens.first : tokens
     end
 
+    # Parses a type
+    def parse_type(str)
+        Parser.new(str, "spec").parse_type
+    end
+
     # Parses a single expression.
     def parse(str)
         Ibex.create_parser(str, "spec").parse_expression
@@ -48,6 +53,30 @@ class String
 
     def ident
         Identifier.new self
+    end
+
+    def type
+        UnresolvedNamedType.new [self]
+    end
+end
+
+class Array
+    def type
+        UnresolvedNamedType.new self
+    end
+
+    def tuple
+        UnresolvedTupleType.new self
+    end
+
+    def fn
+        UnresolvedFunctionType.new self[0...-1], last
+    end
+end
+
+class UnresolvedType
+    def array
+        UnresolvedArrayType.new self
     end
 end
 

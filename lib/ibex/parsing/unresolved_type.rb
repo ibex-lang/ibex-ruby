@@ -39,7 +39,7 @@ module Ibex
                         next_token if token.is? ","
                     end
                     next_token # Consume )
-                else
+                elsif token.is_constant? || token.is_keyword?("fn") || token.is?("(") || token.is?("[") then
                     arg_types << parse_type
                 end
 
