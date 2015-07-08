@@ -68,6 +68,24 @@ module Ibex
 
                 Use.new paths
             end
+
+            expr -> tok { token.is_constant? } do
+                const_names = [consume.value]
+                method_name = nil
+
+                while token.is? "::"
+                    next_token # Consume ::
+
+                    if token.is_constant?
+                        const_names << consume.value
+                    else
+                        method_name = expect_and_consume(:identifier).value
+                    end
+                end
+                raise_error "Expected method name after #{const_names.join "::"}, here:", token unless method_name
+
+                ModuleFunctionRef.new const_names, method_name
+            end
         end
     end
 

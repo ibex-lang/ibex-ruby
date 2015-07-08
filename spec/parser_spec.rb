@@ -51,4 +51,10 @@ describe Parser do
         expect(parse "use A::{B}").to eq Use.new ["A", ["B"]]
         expect(parse "use A::{A, B}").to eq Use.new ["A", ["A", "B"]]
     end
+
+    it "parses a ModuleFunctionRef" do
+        expect(parse "A::b").to eq ModuleFunctionRef.new ["A"], "b"
+        expect(parse "A::B::c").to eq ModuleFunctionRef.new ["A", "B"], "c"
+        expect(parse "A::A::c").to eq ModuleFunctionRef.new ["A", "A"], "c"
+    end
 end
