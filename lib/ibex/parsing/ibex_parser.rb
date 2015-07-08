@@ -138,6 +138,38 @@ module Ibex
                 next_token # Consume ->
                 Call.new expect_expression(3), left.is_a?(CallArgs) ? left.args : [left]
             end
+
+            expr -> tok { tok.is_keyword? "fn" } do
+                name = expect_next_and_consume(:identifier).value
+                args = []
+                type = nil
+
+                # Single arg
+                if token.is_identifier? then
+                    arg_name = consume.value
+                    expect_and_consume ":"
+                    args << FunctionArg.new(arg_name, parse_type)
+                elsif token.is_lparen? # Multiple args
+                    next_token # Consume (
+                    until token.is_rparen?
+                        arg_name = expect_and_consume(:identifier).value
+                        expect_and_consume ":"
+                        arg_type = parse_type
+
+                        args << FunctionArg.new(arg_name, arg_type)
+                        raise_error "Expected ',' or ')' in function arg list", token unless token.is?(",") || token.is_rparen?
+                        next_token if token.is? ","
+                    end
+                    next_token # Consume )
+                end
+
+                if token.is? "->" then
+                    next_token
+                    type = parse_type
+                end
+
+                FunctionDef.new name, args, type, parse_body
+            end
         end
     end
 

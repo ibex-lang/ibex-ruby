@@ -86,4 +86,36 @@ describe Parser do
         expect(parse "a -> b -> c").to eq Call.new("c".ident, [Call.new("b".ident, ["a".ident])])
         expect(parse "a -> Foo::bar").to eq Call.new(ModuleFunctionRef.new(["Foo"], "bar"), ["a".ident])
     end
+
+    it "parses function defs" do
+        src = %Q(
+        fn foo
+          1
+        ).strip
+        expect(parse src).to eq FunctionDef.new "foo", [], nil, [1.literal].body
+
+        src = %Q(
+        fn foo a: I32
+          1
+        ).strip
+        expect(parse src).to eq FunctionDef.new "foo", [FunctionArg.new("a", "I32".type)], nil, [1.literal].body
+
+        src = %Q(
+        fn foo (a: I32, b: F32)
+          1
+        ).strip
+        expect(parse src).to eq FunctionDef.new "foo", [FunctionArg.new("a", "I32".type), FunctionArg.new("b", "F32".type)], nil, [1.literal].body
+
+        src = %Q(
+        fn foo a: I32 -> Bool
+          1
+        ).strip
+        expect(parse src).to eq FunctionDef.new "foo", [FunctionArg.new("a", "I32".type)], "Bool".type, [1.literal].body
+
+        src = %Q(
+        fn foo (a: I32, b: F32) -> Bool
+          1
+        ).strip
+        expect(parse src).to eq FunctionDef.new "foo", [FunctionArg.new("a", "I32".type), FunctionArg.new("b", "F32".type)], "Bool".type, [1.literal].body
+    end
 end
