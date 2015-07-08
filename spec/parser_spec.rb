@@ -68,4 +68,9 @@ describe Parser do
         expect(parse "3 + 1 * 4").to eq Binary.new(3.literal, "+", Binary.new(1.literal, "*", 4.literal))
         expect(parse "3 / 1 * 4").to eq Binary.new(Binary.new(3.literal, "/", 1.literal), "*", 4.literal)
     end
+
+    it "parses assignments with precedence awareness" do
+        expect(parse "a = 3").to eq Assign.new "a".ident, 3.literal
+        expect(parse "a = 3 * 1").to eq Assign.new("a".ident, Binary.new(3.literal, "*", 1.literal))
+    end
 end

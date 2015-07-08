@@ -102,6 +102,11 @@ module Ibex
 
             infix  9, -> x { x.is_operator? "==" }, &create_binary_parser(9)
             infix  9, -> x { x.is_operator? "!=" }, &create_binary_parser(9)
+
+            infix 1, -> tok { tok.is? "=" } do |left|
+                next_token # Consume =
+                Assign.new left, expect_expression
+            end
         end
     end
 
