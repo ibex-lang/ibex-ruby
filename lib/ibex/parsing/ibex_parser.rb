@@ -86,6 +86,22 @@ module Ibex
 
                 ModuleFunctionRef.new const_names, method_name
             end
+
+            infix 12, -> x { x.is_operator? "+" }, &create_binary_parser(12)
+            infix 12, -> x { x.is_operator? "-" }, &create_binary_parser(12)
+            infix 13, -> x { x.is_operator? "*" }, &create_binary_parser(13)
+            infix 13, -> x { x.is_operator? "/" }, &create_binary_parser(13)
+            infix 11, -> x { x.is_operator? "%" }, &create_binary_parser(11)
+
+            infix  5, -> x { x.is_operator? "&&" }, &create_binary_parser(5)
+            infix  4, -> x { x.is_operator? "||" }, &create_binary_parser(4)
+            infix 10, -> x { x.is_operator? "<"  }, &create_binary_parser(10)
+            infix 10, -> x { x.is_operator? "<=" }, &create_binary_parser(10)
+            infix 10, -> x { x.is_operator? ">"  }, &create_binary_parser(10)
+            infix 10, -> x { x.is_operator? ">=" }, &create_binary_parser(10)
+
+            infix  9, -> x { x.is_operator? "==" }, &create_binary_parser(9)
+            infix  9, -> x { x.is_operator? "!=" }, &create_binary_parser(9)
         end
     end
 

@@ -57,4 +57,15 @@ describe Parser do
         expect(parse "A::B::c").to eq ModuleFunctionRef.new ["A", "B"], "c"
         expect(parse "A::A::c").to eq ModuleFunctionRef.new ["A", "A"], "c"
     end
+
+    it "parses all the operators" do
+        ["+", "-", "/", "*", ">", ">=", "<", "<=", "==", "!=", "&&", "||"].each do |op|
+            expect(parse "3 #{op} 1").to eq Binary.new 3.literal, op, 1.literal
+        end
+    end
+
+    it "parses operators with precedence awareness" do
+        expect(parse "3 + 1 * 4").to eq Binary.new(3.literal, "+", Binary.new(1.literal, "*", 4.literal))
+        expect(parse "3 / 1 * 4").to eq Binary.new(Binary.new(3.literal, "/", 1.literal), "*", 4.literal)
+    end
 end
