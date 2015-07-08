@@ -42,6 +42,32 @@ module Ibex
             expr -> tok { tok.is_keyword? "module" } do
                 ModuleDef.new expect_next_and_consume(:constant).value, parse_body
             end
+
+            expr -> tok { tok.is_keyword? "use" } do
+                next_token # Consume use
+                paths = [expect_and_consume(:constant).value]
+
+                while token.is?("::")
+                    next_token # Consume ::
+                    if token.is? "{" then
+                        next_token # Consume {
+
+                        parts = []
+                        until token.is? "}"
+                            parts << expect_and_consume(:constant).value
+                            raise_error "Expected '}' or ',' here:", token unless token.is?(",") || token.is?("}")
+                            next_token if token.is? "," # Consume ,
+                        end
+                        next_token # Consume }
+
+                        paths << parts
+                    else
+                        paths << expect_and_consume(:constant).value
+                    end
+                end
+
+                Use.new paths
+            end
         end
     end
 

@@ -44,4 +44,11 @@ describe Parser do
 
         expect(parse src).to eq ModuleDef.new "Foo", [3.literal, 1.literal].body
     end
+
+    it "parses a use" do
+        expect(parse "use A").to eq Use.new ["A"]
+        expect(parse "use A::B").to eq Use.new ["A", "B"]
+        expect(parse "use A::{B}").to eq Use.new ["A", ["B"]]
+        expect(parse "use A::{A, B}").to eq Use.new ["A", ["A", "B"]]
+    end
 end
