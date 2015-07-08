@@ -34,4 +34,14 @@ describe Parser do
         expect(parse_type "(foo: Foo, bar: Bar)").to eq [["foo", "Foo".type], ["bar", "Bar".type]].tuple
         expect(parse_type "(foo: Foo, Bar)").to eq [["foo", "Foo".type], [nil, "Bar".type]].tuple
     end
+
+    it "parses a module def" do
+        src = %Q(
+        module Foo
+            3
+            1
+        ).strip
+
+        expect(parse src).to eq ModuleDef.new "Foo", [3.literal, 1.literal].body
+    end
 end

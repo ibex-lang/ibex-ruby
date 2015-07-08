@@ -61,6 +61,10 @@ class String
 end
 
 class Array
+    def body
+        Expressions.from self
+    end
+
     def type
         UnresolvedNamedType.new self
     end

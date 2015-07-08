@@ -38,6 +38,37 @@ module Ibex
             expr -> tok { tok.is_identifier? } do
                 Identifier.new consume.value
             end
+
+            expr -> tok { tok.is_keyword? "module" } do
+                ModuleDef.new expect_next_and_consume(:constant).value, parse_body
+            end
+        end
+    end
+
+    class Parser
+        def create_binary_parser(prec, right_associative = false)
+            return lambda do |left|
+                Binary.new(left, consume.value, expect_expression(right_associative ? prec - 1 : prec))
+            end
+        end
+
+        def parse_body(consume_newline = true)
+            unless token.is_indent?
+                node = parse_expression
+                raise_error "Did you forget to indent? Expected node here:", token unless node
+                return node
+            end
+
+            expect_and_consume(:indent)
+
+            contents = []
+            until token.is_outdent? || token.is_eof?
+                contents << parse_expression
+            end
+            next_token # Consume outdent or eof
+            next_token if token.is_newline? && consume_newline
+
+            Expressions.from contents
         end
     end
 end

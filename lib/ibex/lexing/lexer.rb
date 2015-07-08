@@ -74,6 +74,7 @@ module Ibex
                 @index += 1
                 @current_line += 1
                 @current_column = 0
+                @token_queue << Token.new(:newline, "\n", 0, @current_line)
 
                 whitespace = 0
                 while (char = next_char) == " "
@@ -93,8 +94,6 @@ module Ibex
                     @indentation_levels.pop
                     raise "Impossible." if @indentation_levels.last < whitespace
                 end
-
-                @token_queue << Token.new(:newline, "\n", 0, @current_line)
 
                 return next_token
             end

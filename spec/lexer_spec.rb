@@ -85,23 +85,23 @@ describe Lexer do
                     B
         )
 
-        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :constant # A
-        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :constant # B
-        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :constant # C
-        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :outdent
+        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :constant # B
-        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :outdent
-        expect(lexer.next_token.kind).to eq :constant # A
         expect(lexer.next_token.kind).to eq :newline
+        expect(lexer.next_token.kind).to eq :constant # A
         expect(lexer.next_token.kind).to eq :indent
+        expect(lexer.next_token.kind).to eq :newline
         expect(lexer.next_token.kind).to eq :constant # B
     end
 end
