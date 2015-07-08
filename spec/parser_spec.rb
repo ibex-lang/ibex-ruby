@@ -73,4 +73,17 @@ describe Parser do
         expect(parse "a = 3").to eq Assign.new "a".ident, 3.literal
         expect(parse "a = 3 * 1").to eq Assign.new("a".ident, Binary.new(3.literal, "*", 1.literal))
     end
+
+    it "parses calls" do
+        expect(parse "()").to eq CallArgs.new []
+        expect(parse "(3)").to eq 3.literal
+        expect(parse "(a, b)").to eq CallArgs.new ["a".ident, "b".ident]
+
+        expect(parse "() -> foo").to eq Call.new "foo".ident, []
+        expect(parse "a -> foo").to eq Call.new "foo".ident, ["a".ident]
+        expect(parse "(1, 2) -> foo").to eq Call.new "foo".ident, [1.literal, 2.literal]
+
+        expect(parse "a -> b -> c").to eq Call.new("c".ident, [Call.new("b".ident, ["a".ident])])
+        expect(parse "a -> Foo::bar").to eq Call.new(ModuleFunctionRef.new(["Foo"], "bar"), ["a".ident])
+    end
 end

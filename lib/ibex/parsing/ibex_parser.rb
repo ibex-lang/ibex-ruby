@@ -107,6 +107,37 @@ module Ibex
                 next_token # Consume =
                 Assign.new left, expect_expression
             end
+
+            expr -> tok { tok.is_lparen? } do
+                next_token # Consume (
+                if token.is? ")" then
+                    next_token
+                    next CallArgs.new []
+                end
+
+                first_expr = expect_expression
+                raise_error "Expected , or ) here:", token unless token.is?(",") || token.is?(")")
+
+                if token.is?(")") then
+                    next_token # Consume )
+                    next first_expr # It was just a parenthesized expression
+                end
+
+                args = [first_expr]
+                until token.is?(")")
+                    next_token # Consume ,
+                    args << expect_expression
+                    raise_error "Expected , or ) here:", token unless token.is?(",") || token.is?(")")
+                end
+                next_token # Consume )
+
+                CallArgs.new args
+            end
+
+            infix 3, -> tok { tok.is? "->" } do |left|
+                next_token # Consume ->
+                Call.new expect_expression(3), left.is_a?(CallArgs) ? left.args : [left]
+            end
         end
     end
 

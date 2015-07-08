@@ -117,6 +117,7 @@ module Ibex
     # AST Node for calls with arguments.
     # Grammar:
     # EXPRESSION -> IDENTIFIER | (EXPRESSION, EXPRESSION, ...) -> IDENTIFIER
+    create_node :CallArgs, :args # Temporary holder for the (arg, arg...) part
     create_node :Call, :target, :args
 
     # AST Node for a function definition.
